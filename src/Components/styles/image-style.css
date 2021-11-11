@@ -1,0 +1,20 @@
+@import './../fonts/font-face.css';
+
+body {
+  font-family: 'Vazir';
+}
+
+.img-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: auto;
+  flex-direction: column;
+}
+
+.image {
+  border: 1px solid violet;
+  border-radius: 5px;
+  padding: 0.75rem;
+}

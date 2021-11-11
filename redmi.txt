@@ -1,0 +1,314 @@
+ @ version 4
+ 
+ -------- first step
+
+* npm init           or           npm init -y 
+* npm install --save-dev webpack       or        npm install -D webpack
+* npm install --save-dev webpack-cli          or        npm install -D webpack-cli
+
+Version 4
+
+----------------- npm install webpack@4.35.0  webpack-cli@3.3.4 --save-dev
+
+
+قدم دوم اینه که این مقادیر رو به پکیج جیسون اضافه کنیم 
+
+"private": true,
+  "scripts": {
+    "build": "webpack"
+  },
+
+*choose one of the mood ( production and development )
+        ------------>>    "build": "webpack --mode=development"
+
+
+* add directory ( src ) to project and create ( index.js ) file in the src
+
+* next step run ( npm run build )
+
+***‌برای این که بتونیم با وب پک کار های مختلفی انجام بدیم نیازه که حتما فایل :
+      webpack.config.js رو ایجاد کنیم   
+
+ -------------------------------------------------------------------------------------------------------------------
+
+** با استفاده از لودر ها ما میتونیم فایل هایی با پسوند های مختلف به پروژمون اضافه کنیم/ Loader
+
+**** CSS
+** npm install -D style-loader  css-loader
+
+ -------------------------------------------------------------------------------------------------------------------
+
+****SCSS SASS
+** npm install -D sass-loader sass
+
+ -------------------------------------------------------------------------------------------------------------------
+
+**** IMAGE Loader
+** npm install file-loader --save-dev
+** import img from './file.png';
+
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
+    ],
+  },
+};
+
+
+ -------------------------------------------------------------------------------------------------------------------
+
+
+**** Babel.js        ---------- For compile javascript code
+
+*** npm install --save-dev babel-loader @babel/core
+*** npm install @babel/preset-env --save-dev
+
+** {
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
+  }
+}
+
+ -------------------------------------------------------------------------------------------------------------------
+
+**** Plugins
+ ---یه سری کتابخانه های جاوااسکریپتی که به وب پک اضافه میشن و کارهایی میتونن انجام بدن که لودر ها قادر به انجام آن ها نمیباشن
+
+* html plugin 
+
+1- npm install --save-dev html-webpack-plugin
+
+2- const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+3-  plugins: [new HtmlWebpackPlugin()]
+
+ -------------------------------------------------------------------------------------------------------------------
+
+* MiniCssExtractPlugin
+
+برای این به کار میره که همه ی کد های سی اس اس رو در یک فایل کامپایل میکنه
+
+1- npm install --save-dev mini-css-extract-plugin
+
+2- const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+3- 
+module.exports = {
+  plugins: [new MiniCssExtractPlugin()],
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+    ],
+  },
+};
+
+ -------------------------------------------------------------------------------------------------------------------
+
+**** Browser caching
+
+webpack یه ویژگی که داره به اسم contenthash باعث میشه فایل خروجی مون با هر سری که تغیراتی به پروژمون اضافه میکنیم با یه هش جدید خروجی میده و این باعث میشه تا اگر کاربر هش مرورگر خود را پاک نکرده بود به صورت خودکار این کار را انجام دهد
+
+filename: '[name].[contenthash].js'
+
+
+برای این که هر بار با  بیلد گرفتن پروژه تعداد فایل های هش شدمون روی هم انباشته نشه و ما نخواییم  فایل های هش شده قدیمی رو به صورت دستی حذف کنیم به این صورت عمل میکنیم: 
+
+https://github.com/johnagan/clean-webpack-plugin
+
+** npm install --save-dev clean-webpack-plugin
+
+وظیفه این حذف کردن دایرکتوری بیلد قبل از باندل کردن پروژه است
+
+ -------------------------------------------------------------------------------------------------------------------
+
+**** mode and config
+
+کاری کنیم که یه سری از پلاگین ها در حالت دولوپمنت اجرا بشن یه سری در حالت پروداکشن
+
+
+    "build": "webpack --mode=production",
+    "watch": "webpack --mode=development --watch"
+
+---------------- جایگزین به جای بالایی
+
+    "build:pro": "webpack --config webpack.prod.config.js",
+    "build:dev": "webpack --config webpack.dev.config.js",
+    "watch": "webpack --config webpack.dev.config.js --watch"
+
+
+ -------------------------------------------------------------------------------------------------------------------
+
+    **** Webpack dev server ( Localhost )
+
+    بهمون این اجازه رو میده تا یه سرور مجازی درست کنیم
+
+    *** npm install webpack-dev-server --save-dev
+
+
+    devServer: {
+    contentBase: path.join(__dirname, 'build'),
+    compress: true,
+    index: 'index.html',
+    port: 9000 or 8888
+  } 
+
+   package.json >>>>>>>     "watch": "webpack-dev-server --config webpack.dev.config.js"
+
+ -------------------------------------------------------------------------------------------------------------------
+
+   **** MultiPage Application 
+
+
+ entry : {
+        bundle : './src/script.js',
+        admin : './src/admin.js'
+    },
+
+
+    plugins : [
+        new HtmlWebpackPlugin({
+            title : 'Roocket Index Page',
+            template : './src/index.html',
+            filename : 'index.html',
+    چانک برای اینه که هر فایلی javascript and html مختص خودشو لود کنه
+            chunks : ['bundle']
+        }),
+        new HtmlWebpackPlugin({
+            title : 'Roocket Admin Page',
+            template : './src/index.html',
+            filename : 'admin.html',
+            chunks : ['admin']
+        }),
+
+ -------------------------------------------------------------------------------------------------------------------
+
+        **** Single Advance Config
+
+module.exports = (env , { mode }) => {
+    let isDevelopment = mode === 'development';
+
+    if(isDevelopment) {
+        config.devServer = {
+            contentBase : path.resolve(__dirname,'build'),
+            index : 'index.html',
+            port : 8888
+        }
+    }
+
+
+    config.module.rules.push(...[
+        {
+            test : /\.css$/,
+            use : [isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader , 'css-loader']
+        },
+        {
+            test : /\.s[ac]ss$/,
+            use : [isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader , 'css-loader' , 'sass-loader']
+        },
+    ])
+
+
+    if(! isDevelopment) {
+        config.output.filename = '[name].[contenthash].js';
+
+        config.plugins.push(
+            new MiniCssExtractPlugin({
+                filename : '[name].[contenthash].css'
+            }),
+        )
+    }
+
+    return config;
+}
+
+ -------------------------------------------------------------------------------------------------------------------
+
+**** Spliting Code 
+
+که میاد کد های مشترک همه ی فایل ها رو در یک فایل میریزه تا حجم فایل ها کاهش پیدا کنه و ما باید در خروجی دایرکتوریمون اسم این فایل رو اضافه کنیم
+
+ optimization : {
+        splitChunks : {
+            chunks : 'all'
+        }
+    },
+
+
+     new HtmlWebpackPlugin({
+            title : 'Roocket Index Page',
+            template : './src/index.html',
+            filename : 'index.html',
+           >>>>>>> chunks : ['bundle', 'vendors~admin~bundle']
+        }),
+
+
+ -------------------------------------------------------------------------------------------------------------------
+
+        **** Stats ( Progress Bar )
+
+
+        ** const webpack = require('webpack)
+
+        **Plugins:
+           new webpack.ProgressPlugin()
+
+    ** stats: 'errors-warnings',
+
+ -------------------------------------------------------------------------------------------------------------------
+
+    **** Eslint 
+
+    npm install eslint --save-dev
+    npm install eslint-loader --save-dev
+
+    اول این رو در package.json وارد میکنیم بعد npm run lint رو میزنیم و به سوالات پرسیده شده پاسخ میدیم
+
+    "lint": "eslint --init"
+
+    وبعد که به سوالات پاسخ دادیم و فایل .eslintrc.json ایجاد شد در ‌package.json دایرکتوری رو مشخص میکنیم 
+    یا از طریق eslint-loader webpack این کار رو انجام میدیم
+
+    rules >> 
+    {
+        enforce: 'pre',
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
+      },
+
+i
+
+      اضافه کردن fix : treu باعث میشه خودش error هارو درست کنه
+
+       {
+        enforce: 'pre',
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
+        options: {
+          fix: true,
+        },
+      },
